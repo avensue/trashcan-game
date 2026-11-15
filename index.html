@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>體育股長會議｜運動場整潔互動宣導</title>
+    <!-- 載入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 載入 Google Fonts 繁體中文圓體與黑體字型，讓大字更活潑清晰 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+    <!-- 載入 Tone.js 產生趣味音效（無需外部音檔） -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #38bdf8 0%, #34d399 50%, #facc15 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* 活潑的彈跳動畫 */
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            60% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* 答錯震動動畫 */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            15%, 45%, 75% { transform: translateX(-10px); }
+            30%, 60%, 90% { transform: translateX(10px); }
+        }
+
+        /* 漂浮裝飾動畫 */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+
+        .animate-bounce-in {
+            animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .animate-shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* 3D 立體感大按鈕 */
+        .game-btn {
+            transition: all 0.15s ease;
+            box-shadow: 0 8px 0 rgba(0, 0, 0, 0.2);
+        }
+        .game-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 3px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        /* 煙火畫布固定在最上層但不阻擋點擊 */
+        #fireworks-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center p-3 sm:p-6 select-none">
+
+    <!-- 全螢幕煙火特效畫布 -->
+    <canvas id="fireworks-canvas"></canvas>
+
+    <!-- 背景裝飾小圖示 -->
+    <div class="fixed top-4 left-4 text-4xl sm:text-5xl opacity-30 pointer-events-none animate-float">⚽</div>
+    <div class="fixed bottom-4 right-4 text-4xl sm:text-5xl opacity-30 pointer-events-none animate-float" style="animation-delay: 1s;">🏀</div>
+    <div class="fixed top-1/4 right-4 text-4xl sm:text-5xl opacity-30 pointer-events-none animate-float" style="animation-delay: 1.5s;">🏃</div>
+
+    <!-- 主容器 -->
+    <main class="w-full max-w-3xl z-10 my-auto">
+
+        <!-- 頂部會議標籤 -->
+        <header class="text-center mb-4 sm:mb-6">
+            <div class="inline-flex items-center gap-2 bg-white/95 backdrop-blur-sm text-emerald-700 font-black px-5 py-2 sm:px-7 sm:py-3 rounded-full shadow-lg text-lg sm:text-2xl border-4 border-emerald-400">
+                <span>📢</span>
+                <span>體育股長會議・重要宣導</span>
+            </div>
+        </header>
+
+        <!-- ==================== 第一階段：互動問答畫面 ==================== -->
+        <section id="quiz-screen" class="bg-white/95 backdrop-blur-md rounded-3xl p-5 sm:p-10 shadow-2xl border-4 border-white animate-bounce-in">
+            
+            <!-- 問題標題區 -->
+            <div class="text-center mb-6 sm:mb-8">
+                <div class="inline-block bg-amber-100 text-amber-800 font-extrabold px-4 py-1.5 rounded-2xl text-base sm:text-xl mb-3 border-2 border-amber-300">
+                    💡 隨堂大考驗
+                </div>
+                <h1 class="text-2xl sm:text-4xl md:text-5xl font-black text-slate-800 leading-snug sm:leading-tight tracking-wide">
+                    維護運動場整潔人人有責！<br>
+                    <span class="text-emerald-600">到運動場上課</span>，除了運動用品，還需要攜帶什麼呢？
+                </h1>
+            </div>
+
+            <!-- 4 個超大選項按鈕 (手機單欄或雙欄大按鈕，電腦雙欄) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                
+                <!-- 選項 1：飲料 -->
+                <button onclick="handleAnswer(1, false)" class="game-btn w-full bg-gradient-to-r from-sky-400 to-blue-500 hover:from-sky-500 hover:to-blue-600 text-white rounded-2xl p-5 sm:p-7 flex items-center justify-between border-4 border-sky-200 cursor-pointer">
+                    <span class="text-2xl sm:text-4xl font-black tracking-wider">1. 飲料</span>
+                    <span class="text-4xl sm:text-5xl">🥤</span>
+                </button>
+
+                <!-- 選項 2：零食 -->
+                <button onclick="handleAnswer(2, false)" class="game-btn w-full bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white rounded-2xl p-5 sm:p-7 flex items-center justify-between border-4 border-amber-200 cursor-pointer">
+                    <span class="text-2xl sm:text-4xl font-black tracking-wider">2. 零食</span>
+                    <span class="text-4xl sm:text-5xl">🍿</span>
+                </button>
+
+                <!-- 選項 3：垃圾筒 (正確答案) -->
+                <button onclick="handleAnswer(3, true)" class="game-btn w-full bg-gradient-to-r from-emerald-400 to-green-600 hover:from-emerald-500 hover:to-green-700 text-white rounded-2xl p-5 sm:p-7 flex items-center justify-between border-4 border-emerald-200 cursor-pointer">
+                    <span class="text-2xl sm:text-4xl font-black tracking-wider">3. 垃圾筒</span>
+                    <span class="text-4xl sm:text-5xl">🗑️</span>
+                </button>
+
+                <!-- 選項 4：食物 -->
+                <button onclick="handleAnswer(4, false)" class="game-btn w-full bg-gradient-to-r from-rose-400 to-pink-600 hover:from-rose-500 hover:to-pink-700 text-white rounded-2xl p-5 sm:p-7 flex items-center justify-between border-4 border-rose-200 cursor-pointer">
+                    <span class="text-2xl sm:text-4xl font-black tracking-wider">4. 食物</span>
+                    <span class="text-4xl sm:text-5xl">🍔</span>
+                </button>
+
+            </div>
+
+            <!-- 底部小提示 -->
+            <p class="text-center text-slate-500 font-bold text-base sm:text-xl mt-6">
+                👆 請點擊上方按鈕選出正確答案！
+            </p>
+        </section>
+
+        <!-- ==================== 第二階段：答對後的宣導重點畫面 ==================== -->
+        <section id="result-screen" class="hidden space-y-5 sm:space-y-6">
+            
+            <!-- 歡慶橫幅卡片 -->
+            <div class="bg-gradient-to-r from-yellow-300 via-amber-300 to-orange-300 rounded-3xl p-5 sm:p-8 shadow-2xl border-4 border-white text-center animate-bounce-in">
+                <div class="text-5xl sm:text-6xl mb-2">🎉 🥳 🎆</div>
+                <h2 class="text-3xl sm:text-5xl font-black text-rose-600 drop-shadow-sm mb-2">
+                    答對了！就是「垃圾筒」！
+                </h2>
+                <p class="text-xl sm:text-3xl font-black text-slate-800 bg-white/80 inline-block px-4 py-2 rounded-2xl mt-1">
+                    📣 運動場上課班級請自行攜帶垃圾筒處理班級學生垃圾
+                </p>
+            </div>
+
+            <!-- 4 大宣導重點卡片列表 -->
+            <div class="bg-white/95 backdrop-blur-md rounded-3xl p-5 sm:p-8 shadow-2xl border-4 border-white space-y-4 sm:space-y-5 animate-bounce-in">
+                <div class="flex items-center justify-center gap-2 border-b-4 border-emerald-100 pb-3">
+                    <span class="text-3xl sm:text-4xl">📋</span>
+                    <h3 class="text-2xl sm:text-4xl font-black text-emerald-700">四大宣導重點</h3>
+                </div>
+
+                <!-- 重點 1 -->
+                <div class="bg-emerald-50 border-l-8 border-emerald-500 rounded-2xl p-4 sm:p-6 shadow-sm">
+                    <div class="flex items-start gap-3 sm:gap-4">
+                        <span class="bg-emerald-500 text-white font-black text-xl sm:text-3xl w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shrink-0 mt-0.5 shadow">1</span>
+                        <div>
+                            <h4 class="text-xl sm:text-3xl font-black text-emerald-800 mb-2">
+                                自備垃圾筒，垃圾不落地
+                            </h4>
+                            <p class="text-lg sm:text-2xl font-bold text-slate-700 leading-relaxed">
+                                至運動場上課的班級，請自行指派學生攜帶班級垃圾筒，供班上同學集中丟棄垃圾，共同維護環境整潔。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 重點 2 -->
+                <div class="bg-rose-50 border-l-8 border-rose-500 rounded-2xl p-4 sm:p-6 shadow-sm">
+                    <div class="flex items-start gap-3 sm:gap-4">
+                        <span class="bg-rose-500 text-white font-black text-xl sm:text-3xl w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shrink-0 mt-0.5 shadow">2</span>
+                        <div>
+                            <h4 class="text-xl sm:text-3xl font-black text-rose-800 mb-2">
+                                未攜帶垃圾筒，將列入登記
+                            </h4>
+                            <p class="text-lg sm:text-2xl font-bold text-slate-700 leading-relaxed">
+                                未攜帶垃圾筒者，經器材管理員檢查並登記，累計達2次以上，由體衛組協助安排一次班級志工服務。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 重點 3 -->
+                <div class="bg-sky-50 border-l-8 border-sky-500 rounded-2xl p-4 sm:p-6 shadow-sm">
+                    <div class="flex items-start gap-3 sm:gap-4">
+                        <span class="bg-sky-500 text-white font-black text-xl sm:text-3xl w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shrink-0 mt-0.5 shadow">3</span>
+                        <div>
+                            <h4 class="text-xl sm:text-3xl font-black text-sky-800 mb-2">
+                                第七節上課班級，垃圾筒可暫放
+                            </h4>
+                            <p class="text-lg sm:text-2xl font-bold text-slate-700 leading-relaxed">
+                                第七節至運動場上課的班級，放學後可將垃圾筒暫放於體育組，並於隔日第二節上課前自行領回。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 重點 4 -->
+                <div class="bg-amber-50 border-l-8 border-amber-500 rounded-2xl p-4 sm:p-6 shadow-sm">
+                    <div class="flex items-start gap-3 sm:gap-4">
+                        <span class="bg-amber-500 text-white font-black text-xl sm:text-3xl w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shrink-0 mt-0.5 shadow">4</span>
+                        <div>
+                            <h4 class="text-xl sm:text-3xl font-black text-amber-800 mb-2">
+                                下課離場前，確實檢查環境
+                            </h4>
+                            <p class="text-lg sm:text-2xl font-bold text-slate-700 leading-relaxed">
+                                下課離開運動場前，請指派同學檢視並整理班級上課區域及周邊環境，確認沒有留下垃圾後再離開。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 底部操作按鈕列 -->
+                <div class="pt-4 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+                    <button onclick="launchFireworksBurst(8)" class="game-btn bg-gradient-to-r from-amber-400 to-orange-500 text-white font-black text-xl sm:text-2xl py-4 px-6 rounded-2xl border-4 border-amber-200 flex items-center justify-center gap-2 cursor-pointer">
+                        <span>🎆</span>
+                        <span>再放一次煙火</span>
+                    </button>
+                    <button onclick="resetQuiz()" class="game-btn bg-gradient-to-r from-slate-600 to-slate-800 text-white font-black text-xl sm:text-2xl py-4 px-6 rounded-2xl border-4 border-slate-400 flex items-center justify-center gap-2 cursor-pointer">
+                        <span>🔄</span>
+                        <span>回到題目重玩</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==================== 答錯彈出視窗 (哭哭表情 + 再想想看！) ==================== -->
+    <div id="wrong-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-40">
+        <div id="wrong-modal-card" class="bg-white rounded-3xl p-6 sm:p-10 max-w-md w-full text-center shadow-2xl border-8 border-rose-400">
+            <!-- 超大哭哭表情 -->
+            <div class="text-8xl sm:text-9xl mb-4 animate-bounce">😭</div>
+            <h2 class="text-3xl sm:text-5xl font-black text-rose-600 mb-3">
+                再想想看！
+            </h2>
+            <p id="wrong-hint-text" class="text-xl sm:text-2xl font-bold text-slate-600 mb-6 leading-relaxed">
+                帶這個去運動場不能裝垃圾喔～<br>再試一次吧！
+            </p>
+            <button onclick="closeWrongModal()" class="game-btn w-full bg-gradient-to-r from-rose-500 to-pink-600 text-white font-black text-2xl sm:text-3xl py-4 rounded-2xl border-4 border-rose-200 cursor-pointer">
+                好，我再選一次！💪
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 音效系統 (使用 Tone.js 合成，免外部檔案) ====================
+        let audioInitialized = false;
+
+        async function initAudio() {
+            if (!audioInitialized && typeof Tone !== 'undefined') {
+                try {
+                    await Tone.start();
+                    audioInitialized = true;
+                } catch (e) {
+                    console.log('Audio init skipped');
+                }
+            }
+        }
+
+        // 播放答錯音效（逗趣下降音）
+        function playWrongSound() {
+            if (!audioInitialized) return;
+            try {
+                const synth = new Tone.Synth({
+                    oscillator: { type: 'triangle' },
+                    envelope: { attack: 0.02, decay: 0.2, sustain: 0.1, release: 0.3 }
+                }).toDestination();
+                const now = Tone.now();
+                synth.triggerAttackRelease('G3', '8n', now);
+                synth.triggerAttackRelease('Eb3', '4n', now + 0.18);
+            } catch (e) {}
+        }
+
+        // 播放答對歡呼音效（明亮上揚和弦）
+        function playSuccessSound() {
+            if (!audioInitialized) return;
+            try {
+                const synth = new Tone.PolySynth(Tone.Synth).toDestination();
+                const now = Tone.now();
+                synth.triggerAttackRelease(['C4', 'E4', 'G4'], '8n', now);
+                synth.triggerAttackRelease(['E4', 'G4', 'C5'], '8n', now + 0.12);
+                synth.triggerAttackRelease(['G4', 'C5', 'E5', 'G5'], '2n', now + 0.25);
+            } catch (e) {}
+        }
+
+        // ==================== 問答互動邏輯 ====================
+        const wrongHints = {
+            1: '喝完「飲料」會有空瓶子，需要丟到哪裡呢？再想想看！',
+            2: '吃「零食」會產生包裝袋垃圾喔！再想想看！',
+            4: '帶「食物」去運動場只會製造更多垃圾喔～再想想看！'
+        };
+
+        async function handleAnswer(optionNumber, isCorrect) {
+            await initAudio();
+
+            if (isCorrect) {
+                // 答對邏輯：播放音效、放煙火、切換至宣導重點畫面
+                playSuccessSound();
+                
+                const quizScreen = document.getElementById('quiz-screen');
+                const resultScreen = document.getElementById('result-screen');
+                
+                quizScreen.classList.add('hidden');
+                resultScreen.classList.remove('hidden');
+                
+                // 捲動回頂部確保手機版直接看到標題與煙火
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                // 連續施放多波絢麗煙火
+                launchFireworksBurst(10);
+                setTimeout(() => launchFireworksBurst(8), 900);
+                setTimeout(() => launchFireworksBurst(8), 1800);
+            } else {
+                // 答錯邏輯：播放音效、顯示哭哭表情彈窗
+                playWrongSound();
+                const modal = document.getElementById('wrong-modal');
+                const modalCard = document.getElementById('wrong-modal-card');
+                const hintText = document.getElementById('wrong-hint-text');
+
+                hintText.innerHTML = wrongHints[optionNumber] || '再想想看！到運動場上課需要帶什麼裝垃圾呢？';
+                
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                
+                // 重新觸發震動動畫
+                modalCard.classList.remove('animate-shake');
+                void modalCard.offsetWidth; // 強制重繪
+                modalCard.classList.add('animate-shake');
+            }
+        }
+
+        function closeWrongModal() {
+            const modal = document.getElementById('wrong-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function resetQuiz() {
+            const quizScreen = document.getElementById('quiz-screen');
+            const resultScreen = document.getElementById('result-screen');
+            
+            resultScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 點擊彈窗背景也可關閉
+        document.getElementById('wrong-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeWrongModal();
+            }
+        });
+
+        // ==================== 全螢幕煙火粒子引擎 (HTML5 Canvas) ====================
+        const canvas = document.getElementById('fireworks-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let rockets = [];
+        let animationFrameId = null;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const fireworkColors = [
+            '#FF1744', '#FF9100', '#FFEA00', '#00E676', 
+            '#00B0FF', '#D500F9', '#FF4081', '#1DE9B6', '#FFFFFF'
+        ];
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 7 + 2;
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed;
+                this.alpha = 1;
+                this.decay = Math.random() * 0.018 + 0.012;
+                this.gravity = 0.12;
+                this.size = Math.random() * 4 + 3;
+            }
+
+            update() {
+                this.vx *= 0.96;
+                this.vy *= 0.96;
+                this.vy += this.gravity;
+                this.x += this.vx;
+                this.y += this.vy;
+                this.alpha -= this.decay;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, this.alpha);
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = this.color;
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function createExplosion(x, y) {
+            const color1 = fireworkColors[Math.floor(Math.random() * fireworkColors.length)];
+            const color2 = fireworkColors[Math.floor(Math.random() * fireworkColors.length)];
+            const count = 65;
+            for (let i = 0; i < count; i++) {
+                const chosenColor = i % 2 === 0 ? color1 : color2;
+                particles.push(new Particle(x, y, chosenColor));
+            }
+        }
+
+        function launchFireworksBurst(count = 6) {
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    const x = Math.random() * (canvas.width * 0.8) + canvas.width * 0.1;
+                    const y = Math.random() * (canvas.height * 0.5) + canvas.height * 0.1;
+                    createExplosion(x, y);
+                }, i * 180);
+            }
+            if (!animationFrameId) {
+                animateFireworks();
+            }
+        }
+
+        function animateFireworks() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.update();
+                p.draw();
+                if (p.alpha <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+
+            if (particles.length > 0) {
+                animationFrameId = requestAnimationFrame(animateFireworks);
+            } else {
+                animationFrameId = null;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+    </script>
+</body>
+</html>
